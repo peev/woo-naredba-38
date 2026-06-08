@@ -1,4 +1,4 @@
-=== НАП Приложение 38 – WooCommerce XML Export ===
+=== NAP Appendix 38 XML Export for WooCommerce ===
 Contributors: peev
 Tags: woocommerce, nap, bulgaria, xml, export, tax, ecommerce
 Requires at least: 5.8
@@ -9,78 +9,80 @@ License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires Plugins: woocommerce
 
-Генерира стандартизиран XML одиторски файл (Приложение №38) за НАП от WooCommerce поръчки. Безплатен завинаги.
+Generate standardized XML audit files (Bulgarian NAP Appendix 38) from WooCommerce orders. Free and open source forever.
 
 == Description ==
 
-Този плъгин автоматично генерира XML файл по изискванията на НАП (Приложение №38) от поръчките във вашия WooCommerce магазин. Подходящ за български онлайн търговци, които трябва да подават месечни отчети през [portal.nap.bg](https://portal.nap.bg).
+This plugin generates XML reports required by the Bulgarian National Revenue Agency (NAP) under Appendix 38 from your WooCommerce store orders. It is built for Bulgarian online merchants who must submit monthly reports via [portal.nap.bg](https://portal.nap.bg).
 
-**Безплатен завинаги** — отворен код (GPL-2.0+), без платени разширения или абонаменти.
+**Free forever** — GPLv2+ open source, with no paid add-ons or subscriptions.
 
-= Основни функции =
+This is an unofficial third-party tool and is not affiliated with or endorsed by NAP.
 
-* Генериране на XML за избрана година и месец
-* Настройки per-site (ЕИК, номер на е-магазин, тип магазин, домейн)
-* Автоматично разпознаване на методи на плащане (Stripe, PayPal, наложен платеж и др.)
-* Поддръжка на възстановени суми (refunds)
-* Съвместимост с WooCommerce HPOS (High-Performance Order Storage)
-* Пагинирани заявки за големи обеми поръчки
+= Features =
 
-= Изисквания =
+* Generate XML for a selected year and month
+* Per-site settings (company ID, e-shop number, store type, domain)
+* Automatic payment method mapping (Stripe, PayPal, cash on delivery, and more)
+* Refund support in the export
+* WooCommerce HPOS (High-Performance Order Storage) compatible
+* Paginated order queries for large stores
+
+= Requirements =
 
 * WordPress 5.8+
 * WooCommerce 6.0+
 * PHP 7.4+
-* Попълнени данни от Приложение №33 (ЕИК и номер на е-магазин)
+* NAP Appendix 33 data (company ID and e-shop number)
 
-= Плащания – кодове НАП =
+= NAP payment codes =
 
-* 2 – виртуален ПОС (Stripe, PayPal, myPOS, BORICA, ePay, Fibank)
-* 3 – наложен платеж
-* 4 – ДПУ (Braintree, Mollie, Klarna)
-* 5 – друг
+* 2 – virtual POS (Stripe, PayPal, myPOS, BORICA, ePay, Fibank)
+* 3 – cash on delivery
+* 4 – payment service provider (Braintree, Mollie, Klarna)
+* 5 – other
 
-Разширете разпознаването чрез филтрите `nap38_virtual_pos_methods`, `nap38_cod_methods`, `nap38_psp_methods` или мета поле `_nap38_paym` на поръчката.
+Extend mapping with the `nap38_virtual_pos_methods`, `nap38_cod_methods`, `nap38_psp_methods` filters, or the `_nap38_paym` order meta field.
 
 == Installation ==
 
-1. Качете папката `nap-prilozhenie-38` в `/wp-content/plugins/` или инсталирайте ZIP файла през **Plugins → Add New → Upload Plugin**.
-2. Активирайте плъгина от **Plugins → Installed Plugins**.
-3. Уверете се, че WooCommerce е активен.
-4. Отидете на **НАП Прил. 38 → Настройки** и попълнете ЕИК и номера на е-магазина.
-5. Генерирайте XML от **НАП Прил. 38 → Генериране**.
+1. Upload the `nap-prilozhenie-38` folder to `/wp-content/plugins/`, or install the ZIP via **Plugins → Add New → Upload Plugin**.
+2. Activate the plugin from **Plugins → Installed Plugins**.
+3. Ensure WooCommerce is active.
+4. Go to **NAP App. 38 → Settings** and enter your company ID (EIK) and e-shop number.
+5. Generate XML from **NAP App. 38 → Export**.
 
 == Frequently Asked Questions ==
 
-= Плъгинът безплатен ли е? =
+= Is this plugin free? =
 
-Да. Плъгинът е с отворен код под GPL-2.0+ и ще остане безплатен завинаги.
+Yes. It is open source under GPL-2.0+ and will remain free forever.
 
-= Къде подавам генерирания файл? =
+= Where do I submit the generated file? =
 
-Влезте в portal.nap.bg → Деклариране → Приложение №38 и качете XML файла.
+Log in to portal.nap.bg → Declarations → Appendix 38 and upload the XML file.
 
-= Работи ли с HPOS? =
+= Does it work with HPOS? =
 
-Да. Плъгинът декларира съвместимост с WooCommerce High-Performance Order Storage.
+Yes. The plugin declares compatibility with WooCommerce High-Performance Order Storage.
 
-= Как да добавя custom payment gateway? =
+= How do I add a custom payment gateway? =
 
-Използвайте филтъра `nap38_virtual_pos_methods` или задайте `_nap38_paym` мета поле на поръчката.
+Use the `nap38_virtual_pos_methods` filter or set the `_nap38_paym` meta field on an order.
 
 == Screenshots ==
 
-1. Страница за генериране на XML
-2. Страница с настройки
+1. XML export page
+2. Settings page
 
 == Changelog ==
 
 = 1.0.0 =
-* Първоначална публична версия
-* Генериране на XML по Приложение №38 (ДВ, бр. 42/2025, в сила от 01.01.2026)
-* Настройки per-site, автоматично разпознаване на плащания, HPOS поддръжка
+* Initial public release
+* Appendix 38 XML generation (effective 01.01.2026)
+* Per-site settings, payment mapping, and HPOS support
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-Първо публично издание.
+Initial public release.

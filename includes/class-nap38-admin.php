@@ -163,11 +163,18 @@ class NAP38_Admin {
         $settings_ok = NAP38_Settings::get( 'eik' ) && NAP38_Settings::get( 'eshop_n' );
 
         // Default to previous month
-        $default_year  = (int) date( 'Y', strtotime( 'first day of last month' ) );
-        $default_month = (int) date( 'm', strtotime( 'first day of last month' ) );
+        $last_month_ts = strtotime( 'first day of last month' );
+        $default_year  = (int) wp_date( 'Y', $last_month_ts );
+        $default_month = (int) wp_date( 'm', $last_month_ts );
 
-        $year  = isset( $_GET['nap38_year'] )  ? (int) $_GET['nap38_year']  : $default_year;
-        $month = isset( $_GET['nap38_month'] ) ? (int) $_GET['nap38_month'] : $default_month;
+        $year  = $default_year;
+        $month = $default_month;
+
+        if ( isset( $_GET['nap38_year'], $_GET['nap38_month'], $_GET['nap38_preview_nonce'] )
+            && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nap38_preview_nonce'] ) ), 'nap38_preview' ) ) {
+            $year  = (int) $_GET['nap38_year'];
+            $month = (int) $_GET['nap38_month'];
+        }
         ?>
         <div class="wrap nap38-wrap">
             <h1>📄 НАП Приложение 38 – Генериране на XML</h1>
@@ -181,12 +188,13 @@ class NAP38_Admin {
             <div class="nap38-export-card">
                 <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="display:inline-flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
                     <input type="hidden" name="page" value="nap38" />
+                    <?php wp_nonce_field( 'nap38_preview', 'nap38_preview_nonce' ); ?>
 
                     <div>
                         <label for="nap38_year"><strong>Година</strong></label><br/>
                         <select name="nap38_year" id="nap38_year">
-                            <?php for ( $y = (int) date( 'Y' ); $y >= 2024; $y-- ) : ?>
-                                <option value="<?php echo $y; ?>" <?php selected( $y, $year ); ?>><?php echo $y; ?></option>
+                            <?php for ( $y = (int) wp_date( 'Y' ); $y >= 2024; $y-- ) : ?>
+                                <option value="<?php echo esc_attr( (string) $y ); ?>" <?php selected( $y, $year ); ?>><?php echo esc_html( (string) $y ); ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
@@ -199,8 +207,8 @@ class NAP38_Admin {
                                            7=>'Юли',8=>'Август',9=>'Септември',10=>'Октомври',11=>'Ноември',12=>'Декември' ];
                             foreach ( $bg_months as $num => $name ) :
                             ?>
-                                <option value="<?php echo $num; ?>" <?php selected( $num, $month ); ?>>
-                                    <?php echo $name; ?>
+                                <option value="<?php echo esc_attr( (string) $num ); ?>" <?php selected( $num, $month ); ?>>
+                                    <?php echo esc_html( $name ); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -224,7 +232,7 @@ class NAP38_Admin {
                 ?>
 
                 <div class="nap38-stat">
-                    Намерени <strong><?php echo $count; ?> поръчки</strong> за
+                    Намерени <strong><?php echo esc_html( (string) $count ); ?> поръчки</strong> за
                     <?php echo esc_html( $bg_months[ $month ] . ' ' . $year ); ?>
                 </div>
 
@@ -261,8 +269,8 @@ class NAP38_Admin {
 
         check_admin_referer( 'nap38_export_nonce', 'nap38_nonce' );
 
-        $year  = isset( $_POST['nap38_year'] )  ? (int) $_POST['nap38_year']  : (int) date( 'Y' );
-        $month = isset( $_POST['nap38_month'] ) ? (int) $_POST['nap38_month'] : (int) date( 'm' );
+        $year  = isset( $_POST['nap38_year'] )  ? (int) $_POST['nap38_year']  : (int) wp_date( 'Y' );
+        $month = isset( $_POST['nap38_month'] ) ? (int) $_POST['nap38_month'] : (int) wp_date( 'm' );
 
         if ( $year < 2020 || $year > 2100 || $month < 1 || $month > 12 ) {
             wp_die( 'Невалидна дата.' );
@@ -292,6 +300,7 @@ class NAP38_Admin {
         header( 'Expires: 0' );
         header( 'Content-Length: ' . strlen( $xml ) );
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted plugin-generated XML file download.
         echo $xml;
         exit;
     }

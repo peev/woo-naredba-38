@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       НАП Приложение 38 – WooCommerce XML Export
+ * Plugin Name:       NAP Appendix 38 XML Export for WooCommerce
  * Plugin URI:        https://github.com/peev/woo-naredba-38
- * Description:       Генерира стандартизиран XML одиторски файл (Приложение №38) за НАП от WooCommerce поръчки. Безплатен завинаги, с отворен код.
+ * Description:       Generates standardized XML audit files (Bulgarian NAP Appendix 38) from WooCommerce orders. Free and open source forever.
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -11,11 +11,11 @@
  * Author URI:        https://github.com/peev
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       nap38
+ * Text Domain:       nap-prilozhenie-38
  * WC requires at least: 6.0
  * WC tested up to:   9.8
  *
- * @package NAP38
+ * @package NAP_Prilozhenie_38
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -44,7 +44,7 @@ add_action( 'admin_init', function () {
     }
 
     add_action( 'admin_notices', function () {
-        echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'НАП Приложение 38:', 'nap38' ) . '</strong> ' . esc_html__( 'Изисква активен WooCommerce.', 'nap38' ) . '</p></div>';
+        echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'NAP Appendix 38:', 'nap-prilozhenie-38' ) . '</strong> ' . esc_html__( 'Requires an active WooCommerce installation.', 'nap-prilozhenie-38' ) . '</p></div>';
     } );
 } );
 

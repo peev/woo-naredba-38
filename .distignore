@@ -4,5 +4,4 @@
 .distignore
 bin/
 *.zip
-README.md
 LICENSE

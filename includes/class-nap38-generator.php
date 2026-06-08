@@ -27,8 +27,9 @@ class NAP38_Generator {
      * Main entry point. Returns generated XML string.
      */
     public function generate( int $year, int $month ): string {
-        // Raise memory limit for this request only
-        @ini_set( 'memory_limit', '512M' );
+        if ( function_exists( 'wp_raise_memory_limit' ) ) {
+            wp_raise_memory_limit( 'admin' );
+        }
 
         $xml = new DOMDocument( '1.0', 'UTF-8' );
         $xml->formatOutput = true;
@@ -41,7 +42,7 @@ class NAP38_Generator {
         $this->add_text_node( $xml, $root, 'E_SHOP_N',      $this->eshop_n );
         $this->add_text_node( $xml, $root, 'E_SHOP_TYPE',   $this->eshop_type );
         $this->add_text_node( $xml, $root, 'DOMAIN_NAME',   $this->domain_name );
-        $this->add_text_node( $xml, $root, 'CREATION_DATE', date( 'Y-m-d' ) );
+        $this->add_text_node( $xml, $root, 'CREATION_DATE', wp_date( 'Y-m-d' ) );
         $this->add_text_node( $xml, $root, 'MON',           str_pad( (string) $month, 2, '0', STR_PAD_LEFT ) );
         $this->add_text_node( $xml, $root, 'GOD',           (string) $year );
 
@@ -74,7 +75,7 @@ class NAP38_Generator {
             $order = wc_get_order( $row->order_id );
             if ( ! $order ) continue;
 
-            $refund_date   = $row->refund_date ?: date( 'Y-m-d' );
+            $refund_date   = $row->refund_date ?: wp_date( 'Y-m-d' );
             $refund_amount = (float) $order->get_total_refunded();
             $r_amount      = $this->to_eur( $refund_amount );
             $r_total      += $r_amount;
@@ -224,16 +225,18 @@ class NAP38_Generator {
         $start = sprintf( '%04d-%02d-01', $year, $month );
         $end   = sprintf( '%04d-%02d-%02d', $year, $month, cal_days_in_month( CAL_GREGORIAN, $month, $year ) );
 
-        // HPOS-compatible: try wc_orders table first, fall back to posts
+        // HPOS-compatible: try wc_orders table first, fall back to posts.
         $hpos_table = $wpdb->prefix . 'wc_orders';
-        $use_hpos   = $wpdb->get_var( "SHOW TABLES LIKE '{$hpos_table}'" ) === $hpos_table;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prefixed WooCommerce table name.
+        $use_hpos   = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $hpos_table ) ) === $hpos_table;
 
         if ( $use_hpos ) {
-            // In HPOS, refunds are child orders with type=shop_order_refund
+            // In HPOS, refunds are child orders with type=shop_order_refund.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prefixed WooCommerce HPOS table.
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT parent_order_id AS order_id,
                         DATE(date_created_gmt) AS refund_date
-                 FROM {$hpos_table}
+                 FROM `{$hpos_table}`
                  WHERE type = 'shop_order_refund'
                    AND DATE(date_created_gmt) BETWEEN %s AND %s
                  GROUP BY parent_order_id
@@ -241,7 +244,8 @@ class NAP38_Generator {
                 $start, $end
             ) );
         } else {
-            // Legacy posts table
+            // Legacy posts table.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Refund lookup for legacy order storage.
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT post_parent AS order_id,
                         DATE(post_date) AS refund_date
@@ -268,9 +272,11 @@ class NAP38_Generator {
         if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
             $wpdb->queries = [];
         }
-        // Clear WP object cache for orders to prevent stale objects stacking up
-        wp_cache_flush_group( 'posts' );
-        wp_cache_flush_group( 'post_meta' );
+        // Clear WP object cache for orders to prevent stale objects stacking up.
+        if ( function_exists( 'wp_cache_flush_group' ) ) {
+            wp_cache_flush_group( 'posts' );
+            wp_cache_flush_group( 'post_meta' );
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
